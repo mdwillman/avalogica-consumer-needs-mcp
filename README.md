@@ -1,9 +1,9 @@
-# Avalogica Consumer Needs MCP
+# Avalogica Emergent Consumer Needs MCP
 
 **Version:** 0.2.0  
 **License:** MIT
 
-The Avalogica Consumer Needs MCP server powers Avalogica’s Emergent Consumer Needs agent. It analyzes emerging consumer signals, synthesizes market trends, and helps entrepreneurs and business owners brainstorm novel product ideas based on their capabilities and current market trajectories.
+The Avalogica Emergent Consumer Needs MCP server powers Avalogica’s Emergent Consumer Needs agent. It analyzes emerging consumer signals, synthesizes market trends, and helps entrepreneurs and business owners brainstorm novel product ideas based on their capabilities and current market trajectories.
 
 ---
 
