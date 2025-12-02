@@ -8,9 +8,17 @@ import {
 import {
   getTechUpdateTool,
   listTechTopicsTool,
+  searchEmergentSignalsTool,
+  searchEdgeCommunitiesTool,
+  findSimilarPagesTool,
+  fetchPageContentsTool,
 } from "./tools/index.js";
 import {
   TechUpdateArgs,
+  SearchEmergentSignalsArgs,
+  SearchEdgeCommunitiesArgs,
+  FindSimilarPagesArgs,
+  FetchPageContentsArgs,
 } from "./types.js";
 
 /**
@@ -47,6 +55,10 @@ export class ConsumerNeedsServer {
       tools: [
         listTechTopicsTool.definition,
         getTechUpdateTool.definition,
+        searchEmergentSignalsTool.definition,
+        searchEdgeCommunitiesTool.definition,
+        findSimilarPagesTool.definition,
+        fetchPageContentsTool.definition,
       ],
     }));
 
@@ -72,6 +84,74 @@ export class ConsumerNeedsServer {
             );
           }
           return await getTechUpdateTool.handler(args as unknown as TechUpdateArgs);
+        }
+
+        case "search_emergent_signals": {
+          if (
+            !args ||
+            typeof args !== "object" ||
+            typeof (args as any).query !== "string" ||
+            !(args as any).query.trim()
+          ) {
+            throw new McpError(
+              ErrorCode.InvalidParams,
+              "Invalid or missing arguments for search_emergent_signals. Expected { query: string, numResults?: number }."
+            );
+          }
+          return await searchEmergentSignalsTool.handler(
+            args as unknown as SearchEmergentSignalsArgs
+          );
+        }
+
+        case "search_edge_communities": {
+          if (
+            !args ||
+            typeof args !== "object" ||
+            typeof (args as any).query !== "string" ||
+            !(args as any).query.trim()
+          ) {
+            throw new McpError(
+              ErrorCode.InvalidParams,
+              "Invalid or missing arguments for search_edge_communities. Expected { query: string, numResults?: number }."
+            );
+          }
+          return await searchEdgeCommunitiesTool.handler(
+            args as unknown as SearchEdgeCommunitiesArgs
+          );
+        }
+
+        case "find_similar_pages": {
+          if (
+            !args ||
+            typeof args !== "object" ||
+            typeof (args as any).url !== "string" ||
+            !(args as any).url.trim()
+          ) {
+            throw new McpError(
+              ErrorCode.InvalidParams,
+              "Invalid or missing arguments for find_similar_pages. Expected { url: string, numResults?: number }."
+            );
+          }
+          return await findSimilarPagesTool.handler(
+            args as unknown as FindSimilarPagesArgs
+          );
+        }
+
+        case "fetch_page_contents": {
+          if (
+            !args ||
+            typeof args !== "object" ||
+            typeof (args as any).url !== "string" ||
+            !(args as any).url.trim()
+          ) {
+            throw new McpError(
+              ErrorCode.InvalidParams,
+              "Invalid or missing arguments for fetch_page_contents. Expected { url: string, includeSubpages?: boolean }."
+            );
+          }
+          return await fetchPageContentsTool.handler(
+            args as unknown as FetchPageContentsArgs
+          );
         }
 
         default:
@@ -128,6 +208,8 @@ export function createStandaloneServer(): Server {
     tools: [
       listTechTopicsTool.definition,
       getTechUpdateTool.definition,
+      searchEmergentSignalsTool.definition,
+      searchEdgeCommunitiesTool.definition,
     ],
   }));
 
@@ -153,6 +235,74 @@ export function createStandaloneServer(): Server {
           );
         }
         return await getTechUpdateTool.handler(args as unknown as TechUpdateArgs);
+      }
+
+      case "search_emergent_signals": {
+        if (
+          !args ||
+          typeof args !== "object" ||
+          typeof (args as any).query !== "string" ||
+          !(args as any).query.trim()
+        ) {
+          throw new McpError(
+            ErrorCode.InvalidParams,
+            "Invalid or missing arguments for search_emergent_signals. Expected { query: string, numResults?: number }."
+          );
+        }
+        return await searchEmergentSignalsTool.handler(
+          args as unknown as SearchEmergentSignalsArgs
+        );
+      }
+
+      case "search_edge_communities": {
+        if (
+          !args ||
+          typeof args !== "object" ||
+          typeof (args as any).query !== "string" ||
+          !(args as any).query.trim()
+        ) {
+          throw new McpError(
+            ErrorCode.InvalidParams,
+            "Invalid or missing arguments for search_edge_communities. Expected { query: string, numResults?: number }."
+          );
+        }
+        return await searchEdgeCommunitiesTool.handler(
+          args as unknown as SearchEdgeCommunitiesArgs
+        );
+      }
+
+      case "find_similar_pages": {
+        if (
+          !args ||
+          typeof args !== "object" ||
+          typeof (args as any).url !== "string" ||
+          !(args as any).url.trim()
+        ) {
+          throw new McpError(
+            ErrorCode.InvalidParams,
+            "Invalid or missing arguments for find_similar_pages. Expected { url: string, numResults?: number }."
+          );
+        }
+        return await findSimilarPagesTool.handler(
+          args as unknown as FindSimilarPagesArgs
+        );
+      }
+
+      case "fetch_page_contents": {
+        if (
+          !args ||
+          typeof args !== "object" ||
+          typeof (args as any).url !== "string" ||
+          !(args as any).url.trim()
+        ) {
+          throw new McpError(
+            ErrorCode.InvalidParams,
+            "Invalid or missing arguments for fetch_page_contents. Expected { url: string, includeSubpages?: boolean }."
+          );
+        }
+        return await fetchPageContentsTool.handler(
+          args as unknown as FetchPageContentsArgs
+        );
       }
 
       default:

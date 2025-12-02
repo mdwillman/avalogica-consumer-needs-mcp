@@ -1,6 +1,6 @@
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { CallToolRequestSchema, ErrorCode, ListToolsRequestSchema, McpError, } from '@modelcontextprotocol/sdk/types.js';
-import { getTechUpdateTool, listTechTopicsTool, } from "./tools/index.js";
+import { getTechUpdateTool, listTechTopicsTool, searchEmergentSignalsTool, searchEdgeCommunitiesTool, findSimilarPagesTool, fetchPageContentsTool, } from "./tools/index.js";
 /**
  * Main server class for Avalogica Consumer Needs MCP integration
  * @class ConsumerNeedsServer
@@ -29,6 +29,10 @@ export class ConsumerNeedsServer {
             tools: [
                 listTechTopicsTool.definition,
                 getTechUpdateTool.definition,
+                searchEmergentSignalsTool.definition,
+                searchEdgeCommunitiesTool.definition,
+                findSimilarPagesTool.definition,
+                fetchPageContentsTool.definition,
             ],
         }));
         // ---- Handle Tool Calls ----
@@ -46,6 +50,42 @@ export class ConsumerNeedsServer {
                         throw new McpError(ErrorCode.InvalidParams, "Invalid or missing arguments for get_tech_update. Expected { topic: string }.");
                     }
                     return await getTechUpdateTool.handler(args);
+                }
+                case "search_emergent_signals": {
+                    if (!args ||
+                        typeof args !== "object" ||
+                        typeof args.query !== "string" ||
+                        !args.query.trim()) {
+                        throw new McpError(ErrorCode.InvalidParams, "Invalid or missing arguments for search_emergent_signals. Expected { query: string, numResults?: number }.");
+                    }
+                    return await searchEmergentSignalsTool.handler(args);
+                }
+                case "search_edge_communities": {
+                    if (!args ||
+                        typeof args !== "object" ||
+                        typeof args.query !== "string" ||
+                        !args.query.trim()) {
+                        throw new McpError(ErrorCode.InvalidParams, "Invalid or missing arguments for search_edge_communities. Expected { query: string, numResults?: number }.");
+                    }
+                    return await searchEdgeCommunitiesTool.handler(args);
+                }
+                case "find_similar_pages": {
+                    if (!args ||
+                        typeof args !== "object" ||
+                        typeof args.url !== "string" ||
+                        !args.url.trim()) {
+                        throw new McpError(ErrorCode.InvalidParams, "Invalid or missing arguments for find_similar_pages. Expected { url: string, numResults?: number }.");
+                    }
+                    return await findSimilarPagesTool.handler(args);
+                }
+                case "fetch_page_contents": {
+                    if (!args ||
+                        typeof args !== "object" ||
+                        typeof args.url !== "string" ||
+                        !args.url.trim()) {
+                        throw new McpError(ErrorCode.InvalidParams, "Invalid or missing arguments for fetch_page_contents. Expected { url: string, includeSubpages?: boolean }.");
+                    }
+                    return await fetchPageContentsTool.handler(args);
                 }
                 default:
                     throw new McpError(ErrorCode.MethodNotFound, `Unknown tool: ${name}`);
@@ -90,6 +130,8 @@ export function createStandaloneServer() {
         tools: [
             listTechTopicsTool.definition,
             getTechUpdateTool.definition,
+            searchEmergentSignalsTool.definition,
+            searchEdgeCommunitiesTool.definition,
         ],
     }));
     // ---- Handle tool calls ----
@@ -107,6 +149,42 @@ export function createStandaloneServer() {
                     throw new McpError(ErrorCode.InvalidParams, "Invalid or missing arguments for get_tech_update. Expected { topic: string }.");
                 }
                 return await getTechUpdateTool.handler(args);
+            }
+            case "search_emergent_signals": {
+                if (!args ||
+                    typeof args !== "object" ||
+                    typeof args.query !== "string" ||
+                    !args.query.trim()) {
+                    throw new McpError(ErrorCode.InvalidParams, "Invalid or missing arguments for search_emergent_signals. Expected { query: string, numResults?: number }.");
+                }
+                return await searchEmergentSignalsTool.handler(args);
+            }
+            case "search_edge_communities": {
+                if (!args ||
+                    typeof args !== "object" ||
+                    typeof args.query !== "string" ||
+                    !args.query.trim()) {
+                    throw new McpError(ErrorCode.InvalidParams, "Invalid or missing arguments for search_edge_communities. Expected { query: string, numResults?: number }.");
+                }
+                return await searchEdgeCommunitiesTool.handler(args);
+            }
+            case "find_similar_pages": {
+                if (!args ||
+                    typeof args !== "object" ||
+                    typeof args.url !== "string" ||
+                    !args.url.trim()) {
+                    throw new McpError(ErrorCode.InvalidParams, "Invalid or missing arguments for find_similar_pages. Expected { url: string, numResults?: number }.");
+                }
+                return await findSimilarPagesTool.handler(args);
+            }
+            case "fetch_page_contents": {
+                if (!args ||
+                    typeof args !== "object" ||
+                    typeof args.url !== "string" ||
+                    !args.url.trim()) {
+                    throw new McpError(ErrorCode.InvalidParams, "Invalid or missing arguments for fetch_page_contents. Expected { url: string, includeSubpages?: boolean }.");
+                }
+                return await fetchPageContentsTool.handler(args);
             }
             default:
                 throw new McpError(ErrorCode.MethodNotFound, `Unknown tool: ${name}`);
