@@ -66,12 +66,70 @@ The HTTP server exposes:
 
 ## Tools
 
-Tools for emergent consumer‑needs analysis and product‑idea brainstorming will be added here as they are implemented. Initial placeholders may include:
+The Avalogica Consumer Needs MCP server now includes four Exa‑powered research tools designed to help the agent identify emerging needs, reveal weak signals, cluster similar discussions, and fetch full‑page content for deep reasoning.
 
-- `analyze_emergent_needs`
-- `brainstorm_product_ideas`
+### 🔍 search_emergent_signals
+Search the wider web for early indicators of evolving consumer needs, complaints, and opportunities.  
+Ideal for broad discovery and trend scanning.
 
-Full schemas and examples will be documented once finalized.
+#### Example
+```json
+{
+  "name": "search_emergent_signals",
+  "arguments": {
+    "query": "remote workers frustrated with current AI meeting assistants",
+    "numResults": 8
+  }
+}
+```
+
+### 🧩 search_edge_communities
+Focuses on early‑adopter and frontier communities such as Reddit, Hacker News, GitHub, and niche forums.  
+Great for uncovering hacked‑together workflows, pain points, and “someone please build this” posts.
+
+#### Example
+```json
+{
+  "name": "search_edge_communities",
+  "arguments": {
+    "query": "founders hacking together automation tools for bookkeeping",
+    "numResults": 12
+  }
+}
+```
+
+### 🔗 find_similar_pages
+Given a high‑signal page, this tool finds semantically similar pages across the web.  
+Useful for pattern detection, clustering problems, and identifying adjacent needs.
+
+#### Example
+```json
+{
+  "name": "find_similar_pages",
+  "arguments": {
+    "url": "https://news.ycombinator.com/item?id=12345678",
+    "numResults": 10
+  }
+}
+```
+
+### 📄 fetch_page_contents
+Fetches full cleaned text for one or more pages so the agent can analyze them deeply—summaries, pain‑point extraction, persona insights, etc.
+
+#### Example
+```json
+{
+  "name": "fetch_page_contents",
+  "arguments": {
+    "url": "https://example.com/emerging-trend-article",
+    "includeSubpages": false
+  }
+}
+```
+
+---
+
+More tools will be added as Avalogica expands its emergent‑needs intelligence and product‑innovation capabilities.
 
 ---
 
