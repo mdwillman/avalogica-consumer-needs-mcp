@@ -31,9 +31,9 @@ export const searchEdgeCommunitiesTool = {
         numResults: {
           type: "number",
           minimum: 1,
-          maximum: 20,
+          maximum: 10,
           description:
-            "How many community posts/pages to retrieve (1–20). Defaults to 10 if omitted.",
+            "How many community posts/pages to retrieve (1–10). Defaults to 5 if omitted.",
         },
       },
       required: ["query"],
@@ -41,6 +41,7 @@ export const searchEdgeCommunitiesTool = {
   },
 
   handler: async (args: SearchEdgeCommunitiesArgs): Promise<CallToolResult> => {
+    // --- Input validation ---
     if (
       !args ||
       typeof args !== "object" ||
@@ -53,15 +54,16 @@ export const searchEdgeCommunitiesTool = {
       );
     }
 
-    let numResults = 10;
+    // --- Default 5, hard cap 10 ---
+    let numResults = 5;
     if (args.numResults !== undefined) {
       if (typeof args.numResults !== "number" || Number.isNaN(args.numResults)) {
         throw new McpError(
           ErrorCode.InvalidParams,
-          "numResults must be a number between 1 and 20 if provided."
+          "numResults must be a number between 1 and 10 if provided."
         );
       }
-      numResults = Math.min(20, Math.max(1, Math.floor(args.numResults)));
+      numResults = Math.min(10, Math.max(1, Math.floor(args.numResults)));
     }
 
     try {
@@ -70,23 +72,13 @@ export const searchEdgeCommunitiesTool = {
         `[AI Consumer Needs MCP] 🔍 search_edge_communities query="${trimmedQuery}" numResults=${numResults}`
       );
 
-      // We bias toward edge / early-adopter communities.
+      // --- Exa search focused on edge/early-adopter domains ---
       const exaRaw = await exaClient.post("/search", {
         query: trimmedQuery,
-        // support both common shapes; Exa will ignore extras it doesn't use
         numResults,
-        num_results: numResults,
-        // ask for text content where supported
-        text: true,
-        contents: { text: true },
-        // domain filters in both likely shapes
-        domainFilters: {
-          include: [
-            "reddit.com",
-            "news.ycombinator.com",
-            "github.com",
-            "lobste.rs",
-          ],
+        contents: {
+          summary: { query: trimmedQuery },
+          text: { maxCharacters: 800 },
         },
         includeDomains: [
           "reddit.com",
@@ -96,9 +88,22 @@ export const searchEdgeCommunitiesTool = {
         ],
       });
 
-      const results: ExaSearchResult[] = Array.isArray(exaRaw.results)
+      const rawResults = Array.isArray(exaRaw.results)
         ? (exaRaw.results as ExaSearchResult[])
         : [];
+
+      // --- Compact + trimmed results ---
+      const results: ExaSearchResult[] = rawResults.map((r) => {
+        const anyR = r as any;
+        const rawText = anyR.text ?? r.text ?? null;
+        const summary = anyR.summary ?? r.summary ?? null;
+
+        return {
+          ...r,
+          summary,
+          textSnippet: rawText ? String(rawText).slice(0, 800) : null,
+        };
+      });
 
       const result: ExaSearchResponse = {
         endpoint: "search_edge_communities",
@@ -106,11 +111,24 @@ export const searchEdgeCommunitiesTool = {
         results,
       };
 
+      // --- Defensive total payload trimming (cap ~20k chars) ---
+      const MAX_CHARS = 20000;
+      let payload = JSON.stringify(result);
+
+      if (payload.length > MAX_CHARS) {
+        for (const r of result.results) {
+          if (r.textSnippet && r.textSnippet.length > 400) {
+            r.textSnippet = r.textSnippet.slice(0, 400) + "…";
+          }
+        }
+        payload = JSON.stringify(result);
+      }
+
       return {
         content: [
           {
             type: "text",
-            text: JSON.stringify(result, null, 2),
+            text: payload,
           },
         ],
       };

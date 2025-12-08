@@ -35,6 +35,11 @@ export interface ExaSearchResult {
   author?: string | null;
   text?: string | null;
   snippet?: string | null;
+
+  // New: fields we now rely on in our tools
+  summary?: string | null;
+  textSnippet?: string | null;
+
   [key: string]: unknown;
 }
 
@@ -57,8 +62,8 @@ export interface SearchEmergentSignalsArgs {
   query: string;
 
   /**
-   * How many results to retrieve (1–20). Defaults are handled
-   * by the tool handler.
+   * How many results to retrieve (1–10).
+   * Defaults and caps are enforced by the tool handler.
    */
   numResults?: number;
 }
@@ -71,7 +76,8 @@ export interface SearchEdgeCommunitiesArgs {
   query: string;
 
   /**
-   * How many community posts/pages to retrieve (1–20).
+   * How many community posts/pages to retrieve (1–10).
+   * Defaults and caps are enforced by the tool handler.
    */
   numResults?: number;
 }
@@ -83,7 +89,8 @@ export interface FindSimilarPagesArgs {
   url: string;
 
   /**
-   * How many similar pages to retrieve (1–20).
+   * How many similar pages to retrieve (1–10).
+   * (Handler may cap this to control cost.)
    */
   numResults?: number;
 }
