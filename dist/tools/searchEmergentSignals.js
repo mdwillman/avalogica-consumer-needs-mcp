@@ -5,7 +5,7 @@ const exaClient = new ExaClient();
 export const searchEmergentSignalsTool = {
     definition: {
         name: "search_emergent_signals",
-        description: "Search the wider web for emerging needs, weak signals, complaints, and opportunities related to a topic. Use this for broad discovery of real-world examples and pain points.",
+        description: "...",
         inputSchema: {
             $schema: "http://json-schema.org/draft-07/schema#",
             type: "object",
@@ -20,6 +20,21 @@ export const searchEmergentSignalsTool = {
                     maximum: 10,
                     description: "How many results to retrieve (1–10). Defaults to 5 if omitted.",
                 },
+                resultCategory: {
+                    type: "string",
+                    description: "Optional Exa result category to filter by (e.g., 'company', 'research_paper', 'news_article', 'github', 'tweet').",
+                    enum: [
+                        "company",
+                        "research_paper",
+                        "news_article",
+                        "pdf",
+                        "github",
+                        "tweet",
+                        "personal_site",
+                        "linkedin_profile",
+                        "financial_report",
+                    ],
+                },
             },
             required: ["query"],
         },
@@ -30,7 +45,7 @@ export const searchEmergentSignalsTool = {
             typeof args !== "object" ||
             typeof args.query !== "string" ||
             !args.query.trim()) {
-            throw new McpError(ErrorCode.InvalidParams, "Invalid or missing arguments for search_emergent_signals. Expected { query: string, numResults?: number }.");
+            throw new McpError(ErrorCode.InvalidParams, "Invalid or missing arguments for search_emergent_signals. Expected { query: string, numResults?: number, resultCategory?: string }.");
         }
         // --- Default 5, hard cap 10 ---
         let numResults = 5;
@@ -40,18 +55,44 @@ export const searchEmergentSignalsTool = {
             }
             numResults = Math.min(10, Math.max(1, Math.floor(args.numResults)));
         }
+        // --- Optional resultCategory ---
+        let category;
+        if (args.resultCategory !== undefined) {
+            if (typeof args.resultCategory !== "string") {
+                throw new McpError(ErrorCode.InvalidParams, "resultCategory must be a string if provided.");
+            }
+            const allowedCategories = new Set([
+                "company",
+                "research_paper",
+                "news_article",
+                "pdf",
+                "github",
+                "tweet",
+                "personal_site",
+                "linkedin_profile",
+                "financial_report",
+            ]);
+            if (!allowedCategories.has(args.resultCategory)) {
+                throw new McpError(ErrorCode.InvalidParams, `Invalid resultCategory "${args.resultCategory}".`);
+            }
+            category = args.resultCategory;
+        }
         try {
             const trimmedQuery = args.query.trim();
-            console.error(`[AI Consumer Needs MCP] 🔍 search_emergent_signals query="${trimmedQuery}" numResults=${numResults}`);
-            // --- Exa Search with compact contents shape ---
-            const exaRaw = await exaClient.post("/search", {
+            console.error(`[AI Consumer Needs MCP] 🔍 search_emergent_signals query="${trimmedQuery}" numResults=${numResults} category=${category ?? "none"}`);
+            // --- Build Exa Search payload with compact contents shape ---
+            const exaPayload = {
                 query: trimmedQuery,
                 numResults,
                 contents: {
                     summary: { query: trimmedQuery },
                     text: { maxCharacters: 800 },
                 },
-            });
+            };
+            if (category) {
+                exaPayload.category = category;
+            }
+            const exaRaw = await exaClient.post("/search", exaPayload);
             const rawResults = Array.isArray(exaRaw.results)
                 ? exaRaw.results
                 : [];

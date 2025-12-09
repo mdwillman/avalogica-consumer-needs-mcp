@@ -35,8 +35,6 @@ export interface ExaSearchResult {
   author?: string | null;
   text?: string | null;
   snippet?: string | null;
-
-  // New: fields we now rely on in our tools
   summary?: string | null;
   textSnippet?: string | null;
 
@@ -49,6 +47,20 @@ export interface ExaSearchResponse {
   results: ExaSearchResult[];
   [key: string]: unknown;
 }
+
+/**
+ * Exa result category filter (matches Exa "Result category" options)
+ */
+export type ExaResultCategory =
+  | "company"
+  | "research_paper"
+  | "news_article"
+  | "pdf"
+  | "github"
+  | "tweet"
+  | "personal_site"
+  | "linkedin_profile"
+  | "financial_report";
 
 /**
  * Tool argument types for Exa-backed tools
@@ -66,6 +78,12 @@ export interface SearchEmergentSignalsArgs {
    * Defaults and caps are enforced by the tool handler.
    */
   numResults?: number;
+
+  /**
+   * Optional Exa result category to restrict results to a specific media type
+   * (e.g., "company", "research_paper", "news_article", "github").
+   */
+  resultCategory?: ExaResultCategory;
 }
 
 export interface SearchEdgeCommunitiesArgs {
